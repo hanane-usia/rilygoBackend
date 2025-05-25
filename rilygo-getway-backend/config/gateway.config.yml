@@ -1,0 +1,158 @@
+# @format
+http:
+  port: 5050
+
+admin:
+  port: 9876
+  host: localhost
+
+# Définition des API Endpoints
+apiEndpoints:
+  api:
+    host: localhost
+    paths: "/ip"
+
+  # IMPORTANT: Le nom doit correspondre au pipeline
+  garagistes-service:
+    host: localhost
+    methods: "GET, POST, PUT, DELETE, PATCH"
+    paths:
+      - "/api/garagistes*"
+      - "/api/garages*"
+      - "/api/categories*"
+      - "/api/subcategories*"
+      - "/api/search*"
+      - "/health"
+      - "/setup"
+      - "/check-tables"
+      - "/overview"
+      - "/api-docs*"
+
+  # Service Automobilistes
+  automobilistes-service:
+    host: localhost
+    methods: "GET, POST, PUT, DELETE, PATCH"
+    paths: "/automobilistes*"
+
+# Définition des Services Backend
+serviceEndpoints:
+  httpbin:
+    url: "https://httpbin.org"
+
+  # Votre serveur garagistes TypeScript (port 5001)
+  garagistesTypeScriptService:
+    url: "http://localhost:5001"
+
+  # Votre serveur automobilistes (port 5000)
+  automobilistesService:
+    url: "http://localhost:5000"
+
+# Politiques disponibles
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+  - headers
+  - terminate
+
+# Pipelines de traitement - NOMS CORRECTS
+pipelines:
+  # Pipeline par défaut
+  default:
+    apiEndpoints:
+      - api
+    policies:
+      - log:
+          - action:
+              message: "Test IP: ${req.method} ${req.originalUrl}"
+      - cors:
+          - action:
+              origin: "*"
+              methods: ["GET", "POST", "PUT", "DELETE"]
+              allowedHeaders: ["Content-Type", "Authorization"]
+      - proxy:
+          - action:
+              serviceEndpoint: httpbin
+              changeOrigin: true
+
+  # Pipeline pour Garagistes - NOM CORRIGÉ
+  garagistes-service:
+    apiEndpoints:
+      - garagistes-service
+    policies:
+      # Logging
+      - log:
+          - action:
+              message: "Garagistes Service: ${req.method} ${req.originalUrl} - IP: ${req.ip}"
+
+      # CORS configuré
+      - cors:
+          - action:
+              origin: "*"
+              methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+              allowedHeaders:
+                - "Content-Type"
+                - "Authorization"
+                - "X-API-Key"
+                - "X-Requested-With"
+                - "Accept"
+                - "Origin"
+              credentials: true
+
+      # Rate limiting
+      - rate-limit:
+          - action:
+              max: 200
+              windowMs: 60000
+              message: "Trop de requêtes"
+
+      # Headers
+      - headers:
+          - action:
+              forwardHeaders:
+                x-forwarded-for: true
+                x-real-ip: true
+              setHeaders:
+                x-service: "garagistes-api"
+                x-gateway: "express-gateway"
+
+      # Proxy vers votre service TypeScript
+      - proxy:
+          - action:
+              serviceEndpoint: garagistesTypeScriptService
+              changeOrigin: true
+
+  # Pipeline pour Automobilistes - NOM CORRIGÉ
+  automobilistes-service:
+    apiEndpoints:
+      - automobilistes-service
+    policies:
+      # Logging
+      - log:
+          - action:
+              message: "Automobilistes Service: ${req.method} ${req.originalUrl} - IP: ${req.ip}"
+
+      # CORS
+      - cors:
+          - action:
+              origin: "*"
+              methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+              allowedHeaders: ["Content-Type", "Authorization", "X-API-Key"]
+              credentials: true
+
+      # Rate limiting
+      - rate-limit:
+          - action:
+              max: 100
+              windowMs: 60000
+
+      # Proxy vers le service automobilistes
+      - proxy:
+          - action:
+              serviceEndpoint: automobilistesService
+              changeOrigin: true

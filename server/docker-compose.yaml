@@ -1,0 +1,27 @@
+# @format
+
+# ecrire docker compose pour my server ans pg
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lamraniotman000
+      POSTGRES_DB: rilygo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - rilygo_network
+  app:
+    image: my_app_image:latest
+    container_name: my_app_container
+    environment:
+      DATABASE_URL: postgres://postgres:lamraniotman000@db:5432/rilygo
+    ports:
+      - "13000:3000"
+    networks:
+      - rilygo_network
