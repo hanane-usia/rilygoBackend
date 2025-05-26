@@ -4,7 +4,7 @@ dotenv.config(); // <<< Très important d'avoir ça tout en haut
 import pkg from "pg";
 const { Pool } = pkg;
 
-export const PG_HOST = "localhost";
+export const PG_HOST = "postgres-garagiste";
 export const PG_PORT = 5432;
 export const PG_USER = "postgres";
 export const PG_PASSWORD = "lamraniotman000";
@@ -15,6 +15,7 @@ const pool = new Pool({
   user: PG_USER,
   password: PG_PASSWORD,
   database: PG_DATABASE,
+  // family: 4,
 });
 pool.connect((err: any) => {
   if (err) {
