@@ -1,0 +1,91 @@
+# @format
+
+services:
+  postgres-rilygo:
+    image: postgres:15-alpine
+    container_name: postgres-rilygo
+    environment:
+      POSTGRES_DB: Rilygo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lamraniotman000
+    volumes:
+      - rilygo_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - rilygo-network
+
+  postgres-garagiste:
+    image: postgres:15-alpine
+    container_name: postgres-garagiste
+    environment:
+      POSTGRES_DB: rilygoGaragiste
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lamraniotman000
+    volumes:
+      - garagiste_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - rilygo-network
+
+  rilygo-backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: rilygo-backend
+    environment:
+      PG_HOST: postgres-rilygo
+      PG_PORT: 5432
+      PG_USER: postgres
+      PG_PASSWORD: lamraniotman000
+      PG_DATABASE: Rilygo
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres-rilygo
+    networks:
+      - rilygo-network
+
+  garagiste-backend:
+    build:
+      context: ./serverGaragiste
+      dockerfile: Dockerfile
+    container_name: garagiste-backend
+    environment:
+      PG_HOST: postgres-garagiste
+      PG_PORT: 5432
+      PG_USER: postgres
+      PG_PASSWORD: lamraniotman000
+      PG_DATABASE: rilygoGaragiste
+      PORT: 3000
+    ports:
+      - "3002:3000"
+    depends_on:
+      - postgres-garagiste
+    networks:
+      - rilygo-network
+
+  rilygo-gateway:
+    build:
+      context: ./rilygo-getway-backend
+      dockerfile: Dockerfile
+    container_name: rilygo-gateway
+    environment:
+      PORT: 5050
+    ports:
+      - "5050:5050"
+    depends_on:
+      - rilygo-backend
+      - garagiste-backend
+    networks:
+      - rilygo-network
+
+volumes:
+  rilygo_postgres_data:
+  garagiste_postgres_data:
+
+networks:
+  rilygo-network:
+    driver: bridge
