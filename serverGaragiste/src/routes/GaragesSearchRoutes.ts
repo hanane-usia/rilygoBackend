@@ -3,26 +3,26 @@ import express from "express";
 import {
   searchGaragesByLocation,
   searchGaragesByCategoryLocation,
+  searchNearbyGarages,
+  findNearestGarages,
+  searchGaragesInBounds
 } from "../controllers/GaragesSearchController";
 
 const router = express.Router();
 
-// Routes de géolocalisation avec paramètres dans le path
+router.get("/search/nearby", searchNearbyGarages);
 
-// GET /api/garages/subcategory/:subcategoryId/location/:latitude/:longitude/:radiusZone
-// Rechercher les garages par sous-catégorie et géolocalisation
-// Query params optionnels: categoryId, limit
+router.get("/search/nearest", findNearestGarages);
+router.get("/search/bounds", searchGaragesInBounds);
+
 router.get(
   "/garages/subcategory/:subcategoryId/location/:latitude/:longitude/:radiusZone",
-  searchGaragesByLocation,
+  searchGaragesByLocation
 );
 
-// GET /api/garages/category/:categoryId/location/:latitude/:longitude/:radiusZone
-// Rechercher les garages par catégorie et géolocalisation
-// Query params optionnels: subcategoryId, limit
-// router.get(
-//   "/garages/category/:categoryId/location/:latitude/:longitude/:radiusZone",
-//   searchGaragesByCategoryLocation,
-// );
+router.get(
+  "/garages/category/:category_id/location/:latitude/:longitude/:radiusZone",
+  searchGaragesByCategoryLocation
+);
 
 export default router;

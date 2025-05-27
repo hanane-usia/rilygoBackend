@@ -8,7 +8,7 @@ const { Pool } = pkg;
 export const PG_HOST = "localhost";
 export const PG_PORT = 5432;
 export const PG_USER = "postgres";
-export const PG_PASSWORD = "lamraniotman000";
+export const PG_PASSWORD = "admin";
 export const PG_DATABASE = "rilygoGaragiste";
 const pool = new Pool({
   host: PG_HOST,

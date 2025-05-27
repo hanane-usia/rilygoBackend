@@ -6,10 +6,12 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import "express-async-errors";
+import swaggerUi from "swagger-ui-express";
+import { specs, swaggerOptions } from "./docs/swaggerBooking.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import carRoutes from "./routes/carRoutes.js";
 import addressRoutes from "./routes/addressRoutes.js";
-import bookingRoutes from "./routes/bookingRoutes.js";
 import favoritesRoutes from "./routes/FavoritesRoutes.js";
 import pool from "./db/pgDB.js";
 
@@ -18,6 +20,17 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/api", bookingRoutes);
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, swaggerOptions)
+);
+app.get("/api-docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(specs);
+});
 
 // /setup pour setup la base de données complète
 app.get("/setup", async (req, res) => {
@@ -345,7 +358,7 @@ app.get("/setup", async (req, res) => {
         local_tables: ["users", "cars", "address", "booking"],
         external_api_calls: ["garages", "services"],
         api_gateway_url:
-          process.env.GARAGE_API_URL || "http://localhost:5001/api",
+          process.env.GARAGE_API_URL || "http://localhost:5000/api",
       },
     });
   } catch (error) {
@@ -482,6 +495,17 @@ app.use("*", (req, res) => {
       "PUT /api/users/:id - Modifier un utilisateur",
       "DELETE /api/users/:id - Supprimer un utilisateur",
       "",
+      "=== BOOKINGS ===",
+      "POST /api/bookings - Créer une réservation",
+      "GET /api/bookings - Lister les réservations",
+      "GET /api/bookings/stats - Statistiques des réservations",
+      "GET /api/bookings/user/:userId - Réservations d'un utilisateur",
+      "GET /api/bookings/garage/:garageId - Réservations d'un garage",
+      "PUT /api/bookings/:id - Modifier une réservation",
+      "DELETE /api/bookings/:id - Supprimer une réservation",
+      "",
+      "=== GARAGE SEARCH ===",
+      "GET /api/search/nearby - Chercher des garages à proximité",
       "=== CARS ===",
       "POST /api/users/:userId/cars - Ajouter une voiture",
       "GET /api/users/:userId/cars - Voitures d'un utilisateur",
@@ -521,9 +545,10 @@ const start = async () => {
       console.log(`🔧 Setup database: GET http://localhost:${PORT}/setup`);
       console.log(`📋 Check tables: GET http://localhost:${PORT}/check-tables`);
       console.log(`🚗 Automobiliste API: http://localhost:${PORT}/api`);
+      console.log(`📚API : http://localhost:${PORT}/api-docs`);
+      console.log(`📄 JSON Schema: http://localhost:${PORT}/api-docs.json`);
       console.log(
-        `🔗 External Garage API: ${
-          process.env.GARAGE_API_URL || "http://localhost:5001/api"
+        `🔗 External Garage API: ${process.env.GARAGE_API_URL || "http://localhost:5001/api"
         }`,
       );
     });

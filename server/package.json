@@ -9,22 +9,28 @@
     "clean": "rmdir /s /q dist"
   },
   "dependencies": {
+    "axios": "^1.9.0",
     "bcryptjs": "^3.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "express-async-errors": "^3.1.1",
+    "http-proxy-middleware": "^3.0.5",
     "mongoose": "^8.10.1",
     "pg": "^8.14.1",
-    "server": "file:"
+    "server": "file:",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/node": "^20.11.0",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/node": "^20.17.50",
     "@types/pg": "^8.11.13",
-    "nodemon": "^3.1.9",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.3"
   }
 }
